@@ -1,7 +1,24 @@
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
 
-/// Users
+// Connection to DB
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  user: 'vagrant',
+  password: '123',
+  host: 'localhost',
+  port: 5432,
+  database: 'lightbnb'
+});
+
+pool.connect(() => {
+  console.log("connected to the database")
+});
+
+
+
+// Users
 
 /**
  * Get a single user from the database given their email.
