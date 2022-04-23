@@ -50,9 +50,10 @@ exports.getUserWithEmail = getUserWithEmail;
  */
 const getUserWithId = function(id) {
   return pool
-  .query(`SELECT * FROM users WHERE name = $1`, [id])
+  .query(`SELECT * FROM users WHERE id = $1`, [id]) // I tried using name, and instead of users.id also used just id, same result. 
   .then((result) => {
-      return result.rows
+    console.log(result.rows)
+      return result.rows[0]
   })
   .catch((err) => {
     console.log(err.message);
@@ -71,7 +72,7 @@ const addUser =  function(user) {
   VALUES($1, $2, $3)
   RETURNING *;`, [user.name, user.email, user.password])
   .then((result) => {
-    return result.rows
+    return result.rows[0]
   })
   .catch((err) => {
     console.log(err.message);
@@ -91,14 +92,14 @@ const getAllReservations = function(guest_id, limit = 10) {
   //return getAllProperties(null, 2);
 
   return pool
-  .query(`SELECT properties.*
+  .query(`SELECT reservations.id, properties.title, properties.cost_per_night, reservations.start_date, avg(rating) as average_rating
   FROM reservations
   JOIN properties ON reservations.property_id = properties.id
-  JOIN property_reviews ON property_reviews.property_id = properties.id
-  WHERE end_date < NOW()::DATE AND reservations.guest_id = $1
+  JOIN property_reviews ON properties.id = property_reviews.property_id
+  WHERE reservations.guest_id = $1
   GROUP BY properties.id, reservations.id
   ORDER BY reservations.start_date
-  limit 10;
+  LIMIT 10;
   `, [guest_id])
   .then((result) => {
     return result.rows
